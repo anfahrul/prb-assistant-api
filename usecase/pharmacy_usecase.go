@@ -2,7 +2,9 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -83,5 +85,28 @@ func GetRecipe(c *gin.Context) {
 		"claimStatus": recipe.ClaimStatus,
 		"pharmacy":    pharmacy,
 		"medicine":    medicine,
+	})
+}
+
+func InsertMedicine(c *gin.Context) {
+	c.Header("Content-Type", "application/json")
+
+	ctx := context.Background()
+	recipeId := c.Param("recipeId")
+	recipeIdInt, _ := strconv.Atoi(recipeId)
+	bodyReq, _ := ioutil.ReadAll(c.Request.Body)
+	var medicine entity.Medicine
+	json.Unmarshal(bodyReq, &medicine)
+
+	medicineRepository := repository.NewMedicineRepository(database.GetConnection())
+	_, err := medicineRepository.InsertMedicine(ctx, int32(recipeIdInt), medicine)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"code":    http.StatusCreated,
+		"message": "add medicine succesfull",
 	})
 }
