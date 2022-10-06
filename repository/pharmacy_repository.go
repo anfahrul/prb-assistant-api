@@ -7,5 +7,6 @@ import (
 )
 
 type PharmacyRepository interface {
+	GetPharmacy(ctx context.Context) ([]entity.Pharmacy, error)
 	FindByPharmacyId(ctx context.Context, pharmacyId int64) (entity.Pharmacy, error)
 }

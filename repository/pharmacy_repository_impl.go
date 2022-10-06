@@ -41,3 +41,27 @@ func (repository *pharmacyRepositoryImpl) FindByPharmacyId(ctx context.Context, 
 		return pharmacy, errors.New("Pharmacy " + strconv.Itoa(int(pharmacyId)) + " Not Found")
 	}
 }
+
+func (repository *pharmacyRepositoryImpl) GetPharmacy(ctx context.Context) ([]entity.Pharmacy, error) {
+	var pharmacies []entity.Pharmacy
+
+	script := "SELECT pharmacyId, name, address FROM pharmacy"
+	rows, err := repository.DB.QueryContext(ctx, script)
+	if err != nil {
+		return pharmacies, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		// ada
+		pharmacy := entity.Pharmacy{}
+		rows.Scan(
+			&pharmacy.PharmacyId,
+			&pharmacy.Name,
+			&pharmacy.Address,
+		)
+		pharmacies = append(pharmacies, pharmacy)
+	}
+
+	return pharmacies, nil
+}

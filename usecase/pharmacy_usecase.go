@@ -110,3 +110,16 @@ func InsertMedicine(c *gin.Context) {
 		"message": "add medicine succesfull",
 	})
 }
+
+func GetAllPharmacy(c *gin.Context) {
+	ctx := context.Background()
+
+	pharmacyRepository := repository.NewPharmacyRepository(database.GetConnection())
+	result, err := pharmacyRepository.GetPharmacy(ctx)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(200, result)
+}
