@@ -15,6 +15,7 @@ func main() {
 	router.POST("/pharmacy/:medicalRecord", usecase.InsertReceipe)
 	router.GET("/pharmacy/recipe", usecase.GetRecipe)
 	router.POST("/pharmacy/recipe/:recipeId", usecase.InsertMedicine)
+	router.PUT("/pharmacy/:recipeId", usecase.UpdatePharmacy)
 
 	router.Run(":8080")
 }

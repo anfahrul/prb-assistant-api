@@ -64,7 +64,7 @@ func (repository *recipeRepositoryImpl) UpdateRecipe(ctx context.Context, recipe
 		WHERE recipeId=?
 	`
 
-	_, err := repository.DB.ExecContext(ctx, script, recipe.ClaimStatus, recipe.PharmacyId)
+	_, err := repository.DB.ExecContext(ctx, script, recipe.ClaimStatus, recipe.PharmacyId, recipeId)
 	if err != nil {
 		return err
 	}

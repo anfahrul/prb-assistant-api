@@ -123,3 +123,24 @@ func GetAllPharmacy(c *gin.Context) {
 
 	c.JSON(200, result)
 }
+
+func UpdatePharmacy(c *gin.Context) {
+	c.Header("Content-Type", "application/json")
+
+	ctx := context.Background()
+	bodyReq, _ := ioutil.ReadAll(c.Request.Body)
+	var recipe entity.Recipe
+	json.Unmarshal(bodyReq, &recipe)
+
+	recipeId := c.Param("recipeId")
+	recipeIdInt, _ := strconv.Atoi(recipeId)
+
+	recipeRepository := repository.NewRecipeRepository(database.GetConnection())
+	err := recipeRepository.UpdateRecipe(ctx, int64(recipeIdInt), recipe)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(200, "Update pharmacy on recipe success")
+}
