@@ -8,6 +8,7 @@ import (
 func main() {
 	router := gin.Default()
 
+	router.GET("/:medicalRecord", usecase.LoginPatient)
 	router.POST("/bookcontrol", usecase.InsertBookControl)
 	router.GET("/bookcontrol/:medicalRecord", usecase.GetBookControl)
 	router.PUT("/bookcontrol/:medicalRecord", usecase.UpdateBook)
