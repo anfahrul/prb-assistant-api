@@ -17,17 +17,41 @@ func NewPatientRepository(db *sql.DB) PatientRepository {
 	return &patientRepositoryImpl{DB: db}
 }
 
+func (repository *patientRepositoryImpl) GetAllPatient(ctx context.Context) ([]entity.Patient, error) {
+	script := `SELECT * FROM patient`
+	rows, err := repository.DB.QueryContext(ctx, script)
+	patients := []entity.Patient{}
+	if err != nil {
+		return patients, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		// ada
+		patient := entity.Patient{}
+		rows.Scan(
+			&patient.MedicalRecord,
+			&patient.BpjsNumber,
+			&patient.Name,
+			&patient.Hospital,
+			&patient.Diagnosis,
+			&patient.Bithdate,
+			&patient.Address,
+			&patient.PhoneNumber,
+		)
+		patients = append(patients, patient)
+	}
+
+	return patients, nil
+}
+
 func (repository *patientRepositoryImpl) Insert(ctx context.Context, patien entity.Patient) (entity.Patient, error) {
-	script := "INSERT INTO patient(bpjsNumber, name, hospital, diagnosis, bithdate, address, phoneNumber) VALUES (?, ?, ?, ?, ?, ?, ?)"
-	result, err := repository.DB.ExecContext(ctx, script, patien.BpjsNumber, patien.Name, patien.Hospital, patien.Diagnosis, patien.Bithdate, patien.Address, patien.PhoneNumber)
+	script := "INSERT INTO patient(medicalRecord, bpjsNumber, name, hospital, diagnosis, bithdate, address, phoneNumber) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+	_, err := repository.DB.ExecContext(ctx, script, patien.MedicalRecord, patien.BpjsNumber, patien.Name, patien.Hospital, patien.Diagnosis, patien.Bithdate, patien.Address, patien.PhoneNumber)
 	if err != nil {
 		return patien, err
 	}
-	id, err := result.LastInsertId()
-	if err != nil {
-		return patien, err
-	}
-	patien.MedicalRecord = int32(id)
+
 	return patien, nil
 }
 

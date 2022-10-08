@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -12,6 +13,19 @@ import (
 	"github.com/anfahrul/prb-assistant-api/repository"
 	"github.com/gin-gonic/gin"
 )
+
+func GetAllPatient(c *gin.Context) {
+	ctx := context.Background()
+
+	patientRepository := repository.NewPatientRepository(database.GetConnection())
+	result, err := patientRepository.GetAllPatient(ctx)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(200, result)
+}
 
 func InsertBookControl(c *gin.Context) {
 	c.Header("Content-Type", "application/json")
@@ -24,6 +38,7 @@ func InsertBookControl(c *gin.Context) {
 	patientRepository := repository.NewPatientRepository(database.GetConnection())
 	result, err := patientRepository.Insert(ctx, patient)
 	if err != nil {
+		fmt.Println("Error di add patient")
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -32,9 +47,19 @@ func InsertBookControl(c *gin.Context) {
 		bookRepository := repository.NewBookRepository(database.GetConnection())
 		_, err = bookRepository.InsertBook(ctx, result.MedicalRecord)
 		if err != nil {
+			fmt.Println("Error di add book", err.Error())
 			c.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
+	}
+
+	var recipe entity.Recipe
+	recipeRepository := repository.NewRecipeRepository(database.GetConnection())
+	_, err = recipeRepository.InsertRecipe(ctx, int64(result.MedicalRecord), recipe)
+	if err != nil {
+		fmt.Println("Error di add recipe", err.Error())
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	c.JSON(200, gin.H{

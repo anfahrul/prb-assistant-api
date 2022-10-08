@@ -14,27 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func InsertReceipe(c *gin.Context) {
-	c.Header("Content-Type", "application/json")
-
-	ctx := context.Background()
-	medicalRecord := c.Param("medicalRecord")
-	medicalRecordInt, _ := strconv.Atoi(medicalRecord)
-	var recipe entity.Recipe
-
-	recipeRepository := repository.NewRecipeRepository(database.GetConnection())
-	_, err := recipeRepository.InsertRecipe(ctx, int64(medicalRecordInt), recipe)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	c.JSON(200, gin.H{
-		"code":    http.StatusCreated,
-		"message": "create succesfull",
-	})
-}
-
 func GetRecipe(c *gin.Context) {
 	ctx := context.Background()
 	recipeId := c.Query("recipeId")

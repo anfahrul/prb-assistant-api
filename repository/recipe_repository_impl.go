@@ -18,8 +18,8 @@ func NewRecipeRepository(db *sql.DB) RecipeRepository {
 }
 
 func (repository *recipeRepositoryImpl) InsertRecipe(ctx context.Context, medicalRecord int64, recipe entity.Recipe) (int64, error) {
-	script := "INSERT INTO recipe(medicalRecord) VALUES (?)"
-	result, err := repository.DB.ExecContext(ctx, script, medicalRecord)
+	script := "INSERT INTO recipe(recipeId, medicalRecord) VALUES (?, ?)"
+	result, err := repository.DB.ExecContext(ctx, script, medicalRecord, medicalRecord)
 	if err != nil {
 		return medicalRecord, err
 	}
