@@ -16,7 +16,7 @@ import (
 
 func GetRecipe(c *gin.Context) {
 	ctx := context.Background()
-	recipeId := c.Query("recipeId")
+	recipeId := c.Param("recipeId")
 	recipeIdInt, _ := strconv.Atoi(recipeId)
 	fmt.Println("RESPID", recipeIdInt)
 
@@ -115,11 +115,26 @@ func UpdatePharmacy(c *gin.Context) {
 	recipeIdInt, _ := strconv.Atoi(recipeId)
 
 	recipeRepository := repository.NewRecipeRepository(database.GetConnection())
-	err := recipeRepository.UpdateRecipe(ctx, int64(recipeIdInt), recipe)
+	_, err := recipeRepository.FindByRecipeId(ctx, int64(recipeIdInt))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusNotFound,
+			"message": err.Error(),
+		})
 		return
 	}
 
-	c.JSON(200, "Update pharmacy on recipe success")
+	err = recipeRepository.UpdateRecipe(ctx, int64(recipeIdInt), recipe)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"status":  http.StatusCreated,
+		"message": "Update pharmacy on recipe success",
+	})
 }

@@ -107,9 +107,30 @@ func UpdateBook(c *gin.Context) {
 	bookIdInt, _ := strconv.Atoi(bookId)
 
 	bookRepository := repository.NewBookRepository(database.GetConnection())
-	_, err := bookRepository.UpdateBook(ctx, book, int32(medicalRecordInt), int32(bookIdInt))
+	_, err := bookRepository.FindBookByMedicalRecordNumber(ctx, int32(medicalRecordInt))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    http.StatusNotFound,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	err = bookRepository.FindBookById(ctx, int32(bookIdInt), int32(medicalRecordInt))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    http.StatusNotFound,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	_, err = bookRepository.UpdateBook(ctx, book, int32(medicalRecordInt), int32(bookIdInt))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": err.Error(),
+		})
 		return
 	}
 

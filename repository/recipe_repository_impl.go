@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/anfahrul/prb-assistant-api/entity"
@@ -64,10 +65,8 @@ func (repository *recipeRepositoryImpl) UpdateRecipe(ctx context.Context, recipe
 		WHERE recipeId=?
 	`
 
-	_, err := repository.DB.ExecContext(ctx, script, recipe.ClaimStatus, recipe.PharmacyId, recipeId)
-	if err != nil {
-		return err
-	}
+	res, err := repository.DB.ExecContext(ctx, script, recipe.ClaimStatus, recipe.PharmacyId, recipeId)
+	fmt.Println(res.LastInsertId())
 	if err != nil {
 		return err
 	}

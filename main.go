@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/anfahrul/prb-assistant-api/middlewares"
 	"github.com/anfahrul/prb-assistant-api/usecase"
 	"github.com/gin-gonic/gin"
 )
@@ -8,20 +9,34 @@ import (
 func main() {
 	router := gin.Default()
 
-	// pasien
-	router.GET("/patient/:medicalRecord", usecase.LoginPatient)
-	router.GET("/patients", usecase.GetAllPatient)
+	// all
+	public := router.Group("/api")
+	public.GET("/pharmacy", usecase.GetAllPharmacy)
+	public.GET("/patient/:medicalRecord", usecase.LoginPatient)
+	public.GET("/bookcontrol/:medicalRecord", usecase.GetBookControl)
+	public.GET("/pharmacy/:recipeId", usecase.GetRecipe)
+	public.PUT("/pharmacy/:recipeId", usecase.UpdatePharmacy)
+	public.POST("/register", usecase.Register)
+	public.POST("/login", usecase.Login)
 
-	// buku
-	router.POST("/bookcontrol/", usecase.InsertBookControl)
-	router.GET("/bookcontrol/:medicalRecord", usecase.GetBookControl)
-	router.PUT("/bookcontrol/:medicalRecord", usecase.UpdateBook)
+	// nakes
+	nakes := router.Group("/api/nakes")
+	nakes.Use(middlewares.JwtAuthMiddleware())
+	nakes.GET("/patients", usecase.GetAllPatient)
+	nakes.POST("/logout", usecase.Logout)
 
-	// apotek
-	router.GET("/pharmacy", usecase.GetAllPharmacy)
-	router.GET("/pharmacy/recipe", usecase.GetRecipe)
-	router.POST("/pharmacy/recipe/:recipeId", usecase.InsertMedicine)
-	router.PUT("/pharmacy/:recipeId", usecase.UpdatePharmacy)
+	// staf
+	staff := router.Group("/api/staff")
+	staff.Use(middlewares.JwtAuthMiddleware())
+	staff.Use(middlewares.StaffMiddleware())
+	staff.POST("/bookcontrol", usecase.InsertBookControl)
+	staff.POST("/pharmacy/recipe/:recipeId", usecase.InsertMedicine)
+
+	// dokter
+	doctor := router.Group("/api/doctor")
+	doctor.Use(middlewares.JwtAuthMiddleware())
+	doctor.Use(middlewares.DoctorMiddleware())
+	doctor.PUT("/bookcontrol/:medicalRecord", usecase.UpdateBook)
 
 	router.Run(":8080")
 }

@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"strconv"
 
 	"github.com/anfahrul/prb-assistant-api/entity"
 )
@@ -53,7 +55,33 @@ func (repository *bookRepositoryImpl) FindBookByMedicalRecordNumber(ctx context.
 		books = append(books, book)
 	}
 
+	if len(books) == 0 {
+		return books, errors.New("No Books belongs medical record number " + strconv.Itoa(int(medicalRecordNumber)))
+	}
+
 	return books, nil
+}
+
+func (repository *bookRepositoryImpl) FindBookById(ctx context.Context, bookId int32, medicalRecordNumber int32) error {
+	var book entity.Book
+
+	script := "SELECT bookId FROM book WHERE bookId = ?"
+	rows, err := repository.DB.QueryContext(ctx, script, bookId)
+	if err != nil {
+		return errors.New("Book Id " + strconv.Itoa(int(bookId)) + "Not found")
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		// ada
+		rows.Scan(
+			&book.BookId,
+		)
+	} else {
+		return errors.New("Book Id " + strconv.Itoa(int(bookId)) + " on medical record number " + strconv.Itoa(int(medicalRecordNumber)) + " Not found")
+	}
+
+	return nil
 }
 
 func (repository *bookRepositoryImpl) UpdateBook(ctx context.Context, book entity.Book, medicalRecordNumber int32, bookid int32) (int32, error) {
