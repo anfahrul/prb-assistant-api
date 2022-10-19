@@ -17,9 +17,9 @@ func NewBookRepository(db *sql.DB) BookRepository {
 	return &bookRepositoryImpl{DB: db}
 }
 
-func (repository *bookRepositoryImpl) InsertBook(ctx context.Context, medicalRecordNumber int32) (int32, error) {
-	script := "INSERT INTO book(medicalRecord) VALUES (?)"
-	result, err := repository.DB.ExecContext(ctx, script, medicalRecordNumber)
+func (repository *bookRepositoryImpl) InsertBook(ctx context.Context, medicalRecordNumber int32, time int) (int32, error) {
+	script := "INSERT INTO book(medicalRecord, checkDate) VALUES (?, ?)"
+	result, err := repository.DB.ExecContext(ctx, script, medicalRecordNumber, time)
 	if err != nil {
 		return medicalRecordNumber, err
 	}

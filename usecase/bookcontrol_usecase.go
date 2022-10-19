@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/anfahrul/prb-assistant-api/database"
 	"github.com/anfahrul/prb-assistant-api/entity"
@@ -38,16 +39,18 @@ func InsertBookControl(c *gin.Context) {
 	patientRepository := repository.NewPatientRepository(database.GetConnection())
 	result, err := patientRepository.Insert(ctx, patient)
 	if err != nil {
-		fmt.Println("Error di add patient")
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
+	currentTime := time.Now().UnixMilli()
+	milliOfMonth := 2629800000
 	for i := 1; i <= 3; i++ {
 		bookRepository := repository.NewBookRepository(database.GetConnection())
-		_, err = bookRepository.InsertBook(ctx, result.MedicalRecord)
+		time := (milliOfMonth * i) + int(currentTime)
+		_, err = bookRepository.InsertBook(ctx, result.MedicalRecord, time)
 		if err != nil {
-			fmt.Println("Error di add book", err.Error())
+			fmt.Println("disini")
 			c.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -57,7 +60,6 @@ func InsertBookControl(c *gin.Context) {
 	recipeRepository := repository.NewRecipeRepository(database.GetConnection())
 	_, err = recipeRepository.InsertRecipe(ctx, int64(result.MedicalRecord), recipe)
 	if err != nil {
-		fmt.Println("Error di add recipe", err.Error())
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
