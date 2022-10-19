@@ -65,8 +65,8 @@ func (repository *bookRepositoryImpl) FindBookByMedicalRecordNumber(ctx context.
 func (repository *bookRepositoryImpl) FindBookById(ctx context.Context, bookId int32, medicalRecordNumber int32) error {
 	var book entity.Book
 
-	script := "SELECT bookId FROM book WHERE bookId = ?"
-	rows, err := repository.DB.QueryContext(ctx, script, bookId)
+	script := "SELECT bookId FROM book WHERE bookId = ? AND medicalRecord = ?"
+	rows, err := repository.DB.QueryContext(ctx, script, bookId, medicalRecordNumber)
 	if err != nil {
 		return errors.New("Book Id " + strconv.Itoa(int(bookId)) + "Not found")
 	}
@@ -87,11 +87,11 @@ func (repository *bookRepositoryImpl) FindBookById(ctx context.Context, bookId i
 func (repository *bookRepositoryImpl) UpdateBook(ctx context.Context, book entity.Book, medicalRecordNumber int32, bookid int32) (int32, error) {
 	script := `
 		UPDATE book
-		SET checkDate = ?, doctorName = ?, medicalStatus = ?, note = ?
+		SET doctorName = ?, medicalStatus = ?, note = ?
 		WHERE medicalRecord=? AND bookId=?
 	`
 
-	result, err := repository.DB.ExecContext(ctx, script, book.CheckDate, book.DoctorName, book.MedicalStatus, book.Note, medicalRecordNumber, bookid)
+	result, err := repository.DB.ExecContext(ctx, script, book.DoctorName, book.MedicalStatus, book.Note, medicalRecordNumber, bookid)
 	if err != nil {
 		return bookid, err
 	}
