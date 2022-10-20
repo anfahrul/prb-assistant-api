@@ -92,7 +92,6 @@ func InsertMedicine(c *gin.Context) {
 
 func GetAllPharmacy(c *gin.Context) {
 	ctx := context.Background()
-
 	pharmacyRepository := repository.NewPharmacyRepository(database.GetConnection())
 	result, err := pharmacyRepository.GetPharmacy(ctx)
 	if err != nil {

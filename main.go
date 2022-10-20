@@ -11,6 +11,8 @@ func main() {
 
 	// all
 	public := router.Group("/api")
+	public.Use(middlewares.CORS())
+
 	public.GET("/pharmacy", usecase.GetAllPharmacy)
 	public.GET("/patient/:medicalRecord", usecase.LoginPatient)
 	public.GET("/bookcontrol/:medicalRecord", usecase.GetBookControl)
