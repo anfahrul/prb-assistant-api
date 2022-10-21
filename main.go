@@ -4,6 +4,7 @@ import (
 	"github.com/anfahrul/prb-assistant-api/middlewares"
 	"github.com/anfahrul/prb-assistant-api/usecase"
 	"github.com/gin-gonic/gin"
+	// "github.com/rs/cors"
 )
 
 func main() {
@@ -12,7 +13,6 @@ func main() {
 	// all
 	public := router.Group("/api")
 	public.Use(middlewares.CORS())
-
 	public.GET("/pharmacy", usecase.GetAllPharmacy)
 	public.GET("/patient/:medicalRecord", usecase.LoginPatient)
 	public.GET("/bookcontrol/:medicalRecord", usecase.GetBookControl)
@@ -40,5 +40,5 @@ func main() {
 	doctor.Use(middlewares.DoctorMiddleware())
 	doctor.PUT("/bookcontrol/:medicalRecord", usecase.UpdateBook)
 
-	router.Run(":8080")
+	router.Run()
 }
