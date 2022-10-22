@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"errors"
 
 	"github.com/anfahrul/prb-assistant-api/entity"
 	"github.com/anfahrul/prb-assistant-api/utils/token"
@@ -62,14 +62,13 @@ func (repository *userRepositoryImpl) LoginCheck(ctx context.Context, user entit
 
 		token, err := token.GenerateToken(u.Username, role)
 		if err != nil {
-			fmt.Println("error", err.Error())
 			return "", err
 		}
 
 		return token, nil
 	}
 
-	return "", err
+	return "", errors.New("kombinasi password dan username salah")
 }
 
 func (repository *userRepositoryImpl) UpdateLoginStatus(ctx context.Context, user entity.User, loginStatus int) error {

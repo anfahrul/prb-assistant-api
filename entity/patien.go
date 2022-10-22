@@ -1,7 +1,7 @@
 package entity
 
 type Patient struct {
-	MedicalRecord int32
+	MedicalRecord int64
 	BpjsNumber    string
 	Name          string
 	Hospital      string

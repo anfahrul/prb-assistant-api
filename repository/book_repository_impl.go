@@ -17,7 +17,7 @@ func NewBookRepository(db *sql.DB) BookRepository {
 	return &bookRepositoryImpl{DB: db}
 }
 
-func (repository *bookRepositoryImpl) InsertBook(ctx context.Context, medicalRecordNumber int32, time int) (int32, error) {
+func (repository *bookRepositoryImpl) InsertBook(ctx context.Context, medicalRecordNumber int64, time int) (int64, error) {
 	script := "INSERT INTO book(medicalRecord, checkDate) VALUES (?, ?)"
 	result, err := repository.DB.ExecContext(ctx, script, medicalRecordNumber, time)
 	if err != nil {
@@ -28,10 +28,10 @@ func (repository *bookRepositoryImpl) InsertBook(ctx context.Context, medicalRec
 		return medicalRecordNumber, err
 	}
 
-	return int32(id), nil
+	return id, nil
 }
 
-func (repository *bookRepositoryImpl) FindBookByMedicalRecordNumber(ctx context.Context, medicalRecordNumber int32) ([]entity.Book, error) {
+func (repository *bookRepositoryImpl) FindBookByMedicalRecordNumber(ctx context.Context, medicalRecordNumber int64) ([]entity.Book, error) {
 	var books []entity.Book
 
 	script := "SELECT bookId, medicalRecord, checkDate, doctorName, medicalStatus, note FROM book WHERE medicalRecord = ?"
@@ -62,7 +62,7 @@ func (repository *bookRepositoryImpl) FindBookByMedicalRecordNumber(ctx context.
 	return books, nil
 }
 
-func (repository *bookRepositoryImpl) FindBookById(ctx context.Context, bookId int32, medicalRecordNumber int32) error {
+func (repository *bookRepositoryImpl) FindBookById(ctx context.Context, bookId int32, medicalRecordNumber int64) error {
 	var book entity.Book
 
 	script := "SELECT bookId FROM book WHERE bookId = ? AND medicalRecord = ?"
@@ -84,7 +84,7 @@ func (repository *bookRepositoryImpl) FindBookById(ctx context.Context, bookId i
 	return nil
 }
 
-func (repository *bookRepositoryImpl) UpdateBook(ctx context.Context, book entity.Book, medicalRecordNumber int32, bookid int32) (int32, error) {
+func (repository *bookRepositoryImpl) UpdateBook(ctx context.Context, book entity.Book, medicalRecordNumber int64, bookid int32) (int32, error) {
 	script := `
 		UPDATE book
 		SET doctorName = ?, medicalStatus = ?, note = ?

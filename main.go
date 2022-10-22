@@ -9,10 +9,10 @@ import (
 
 func main() {
 	router := gin.Default()
+	router.Use(middlewares.CORS())
 
 	// all
 	public := router.Group("/api")
-	public.Use(middlewares.CORS())
 	public.GET("/pharmacy", usecase.GetAllPharmacy)
 	public.GET("/patient/:medicalRecord", usecase.LoginPatient)
 	public.GET("/bookcontrol/:medicalRecord", usecase.GetBookControl)
@@ -23,21 +23,21 @@ func main() {
 
 	// nakes
 	nakes := router.Group("/api/nakes")
-	nakes.Use(middlewares.JwtAuthMiddleware())
+	// nakes.Use(middlewares.JwtAuthMiddleware())
 	nakes.GET("/patients", usecase.GetAllPatient)
 	nakes.POST("/logout", usecase.Logout)
 
 	// staf
 	staff := router.Group("/api/staff")
-	staff.Use(middlewares.JwtAuthMiddleware())
-	staff.Use(middlewares.StaffMiddleware())
+	// staff.Use(middlewares.JwtAuthMiddleware())
+	// staff.Use(middlewares.StaffMiddleware())
 	staff.POST("/bookcontrol", usecase.InsertBookControl)
 	staff.POST("/pharmacy/recipe/:recipeId", usecase.InsertMedicine)
 
 	// dokter
 	doctor := router.Group("/api/doctor")
-	doctor.Use(middlewares.JwtAuthMiddleware())
-	doctor.Use(middlewares.DoctorMiddleware())
+	// doctor.Use(middlewares.JwtAuthMiddleware())
+	// doctor.Use(middlewares.DoctorMiddleware())
 	doctor.PUT("/bookcontrol/:medicalRecord", usecase.UpdateBook)
 
 	router.Run()

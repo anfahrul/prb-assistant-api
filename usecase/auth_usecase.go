@@ -10,6 +10,7 @@ import (
 
 	"github.com/anfahrul/prb-assistant-api/database"
 	"github.com/anfahrul/prb-assistant-api/entity"
+	"github.com/anfahrul/prb-assistant-api/middlewares"
 	"github.com/anfahrul/prb-assistant-api/repository"
 	"github.com/gin-gonic/gin"
 )
@@ -61,22 +62,15 @@ func Register(c *gin.Context) {
 }
 
 func Login(c *gin.Context) {
+	middlewares.CORS()
 	ctx := context.Background()
 
 	bodyReq, _ := ioutil.ReadAll(c.Request.Body)
 	var input entity.User
 	json.Unmarshal(bodyReq, &input)
 
-	u := entity.User{
-		Username:   input.Username,
-		Password:   input.Password,
-		Email:      input.Email,
-		Role:       input.Role,
-		IsLoggedIn: 0,
-	}
-
 	userRepository := repository.NewUserRepository(database.GetConnection())
-	token, err := userRepository.LoginCheck(ctx, u)
+	token, err := userRepository.LoginCheck(ctx, input)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Kombinasi username & password salah",
@@ -91,16 +85,19 @@ func Login(c *gin.Context) {
 		Expires:  tokenExpirationTime,
 		Path:     "/",
 		HttpOnly: false,
-		SameSite: http.SameSiteStrictMode,
+		Domain:   "api.prbassistant.test",
 	})
 
-	err = userRepository.UpdateLoginStatus(ctx, u, 1)
+	err = userRepository.UpdateLoginStatus(ctx, input, 1)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "login success"})
+	c.JSON(http.StatusOK, gin.H{
+		"message": "login success",
+		"token":   token,
+	})
 }
 
 func Logout(c *gin.Context) {

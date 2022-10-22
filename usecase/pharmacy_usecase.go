@@ -77,6 +77,8 @@ func InsertMedicine(c *gin.Context) {
 	var medicine entity.Medicine
 	json.Unmarshal(bodyReq, &medicine)
 
+	fmt.Println("MEDICINE", medicine)
+
 	medicineRepository := repository.NewMedicineRepository(database.GetConnection())
 	_, err := medicineRepository.InsertMedicine(ctx, int32(recipeIdInt), medicine)
 	if err != nil {
